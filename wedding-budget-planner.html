@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#f5f3ed">
+<title>The Wedding Budget Planner | Mike Atchison Photography</title>
+<meta name="description" content="A free wedding budget planner built for Australian couples. Set your budget, see how it tracks against typical spend, and keep everything in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Cousine:wght@400;700&family=Libre+Franklin:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: only light;
+    --ink:#423c33;
+    --sage:#8d9386;
+    --sand:#d0c7b4;
+    --shell:#eae8e1;
+    --mist:#f0efea;
+    --cream:#f5f3ed;
+    --clay:#a96f4f;
+    --ink-soft:rgba(66,60,51,.62);
+    --ink-faint:rgba(66,60,51,.38);
+    --line:rgba(66,60,51,.14);
+    --serif:'Instrument Serif', Georgia, serif;
+    --body:'Libre Franklin', 'Inter', -apple-system, sans-serif;
+    --mono:'Cousine', 'Courier New', monospace;
+    --ui:'Inter', 'Libre Franklin', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;background:var(--cream)}
+  @media (prefers-color-scheme: dark){
+    html,body{background:var(--cream)!important;color:var(--ink)!important}
+  }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:var(--body);
+    font-weight:400;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:48px 20px 72px}
+
+  /* ---------- header ---------- */
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(38px,6vw,56px);
+    line-height:1.05;
+    letter-spacing:-.01em;
+    margin-bottom:18px;
+  }
+  h1 em{font-style:italic;color:var(--sage)}
+  .lede{
+    max-width:560px;
+    font-size:17px;
+    font-weight:300;
+    color:var(--ink-soft);
+    margin-bottom:8px;
+  }
+  .lede strong{font-weight:500;color:var(--ink)}
+
+  /* ---------- budget setter ---------- */
+  .setter{
+    margin-top:36px;
+    background:var(--mist);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px 28px 24px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:28px;
+    align-items:flex-end;
+  }
+  .setter-field{flex:1 1 240px}
+  .field-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:block;
+    margin-bottom:10px;
+  }
+  .money-input{
+    position:relative;
+    display:flex;
+    align-items:baseline;
+    border-bottom:2px solid var(--sand);
+    transition:border-color .2s;
+  }
+  .money-input:focus-within{border-color:var(--ink)}
+  .money-input .dollar{
+    font-family:var(--mono);
+    font-size:26px;
+    color:var(--ink-faint);
+    padding-right:6px;
+  }
+  #totalBudget{
+    font-family:var(--mono);
+    font-size:34px;
+    font-weight:700;
+    color:var(--ink);
+    background:transparent;
+    border:none;
+    outline:none;
+    width:100%;
+    padding:2px 0 8px;
+  }
+  #totalBudget::placeholder{color:var(--ink-faint);font-weight:400}
+  .setter-stats{
+    flex:2 1 360px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+  }
+  .stat .stat-num{
+    font-family:var(--mono);
+    font-size:21px;
+    font-weight:700;
+    display:block;
+    white-space:nowrap;
+  }
+  .stat .stat-lab{
+    font-family:var(--ui);
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+    display:block;
+  }
+  .stat-num.good{color:var(--sage)}
+  .stat-num.warn{color:var(--clay)}
+
+  /* ---------- allocation band ---------- */
+  .band-wrap{margin-top:30px}
+  .band-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .band-title .field-label{margin-bottom:0}
+  .band-note{font-family:var(--ui);font-size:12px;color:var(--ink-faint)}
+  .band{
+    display:flex;
+    height:34px;
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--shell);
+    border:1px solid var(--line);
+  }
+  .band .seg{
+    height:100%;
+    min-width:0;
+    transition:width .45s cubic-bezier(.22,1,.36,1);
+  }
+  .band .seg-rest{flex:1;background:repeating-linear-gradient(135deg,var(--shell),var(--shell) 6px,#e3e0d6 6px,#e3e0d6 7px)}
+  .legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 16px;
+    margin-top:12px;
+  }
+  .legend .key{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:var(--ui);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .legend .swatch{width:10px;height:10px;border-radius:3px;flex:none}
+
+  /* ---------- category ledger ---------- */
+  .ledger{margin-top:48px}
+  .ledger-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  h2{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:30px;
+    letter-spacing:-.01em;
+  }
+  .ledger-sub{font-size:14px;font-weight:300;color:var(--ink-soft);max-width:520px;margin-bottom:22px}
+
+  .cat{
+    background:#fbfaf6;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:20px 22px 18px;
+    margin-bottom:12px;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  .cat:focus-within{border-color:var(--sand);box-shadow:0 2px 14px rgba(66,60,51,.06)}
+  .cat-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .cat-name{
+    font-family:var(--serif);
+    font-size:21px;
+    font-weight:400;
+  }
+  .cat-guide{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .cat-guide b{color:var(--ink)}
+  .cat-mid{
+    display:flex;
+    align-items:flex-end;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .cat-input{
+    display:flex;
+    align-items:baseline;
+    border-bottom:1.5px solid var(--sand);
+    width:170px;
+    transition:border-color .2s;
+  }
+  .cat-input:focus-within{border-color:var(--ink)}
+  .cat-input .dollar{font-family:var(--mono);font-size:15px;color:var(--ink-faint);padding-right:4px}
+  .cat-input input{
+    font-family:var(--mono);
+    font-size:19px;
+    font-weight:700;
+    color:var(--ink);
+    background:transparent;
+    border:none;
+    outline:none;
+    width:100%;
+    padding:2px 0 5px;
+  }
+  .cat-input input::placeholder{color:var(--ink-faint);font-weight:400;font-size:16px}
+  .btn-guide{
+    font-family:var(--ui);
+    font-size:12px;
+    font-weight:500;
+    color:var(--ink-soft);
+    background:var(--shell);
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:6px 13px;
+    cursor:pointer;
+    transition:background .15s,color .15s;
+    white-space:nowrap;
+  }
+  .btn-guide:hover{background:var(--sand);color:var(--ink)}
+  .chip{
+    font-family:var(--ui);
+    font-size:12px;
+    font-weight:500;
+    border-radius:999px;
+    padding:5px 12px;
+    white-space:nowrap;
+  }
+  .chip.idle{color:var(--ink-faint);background:transparent;border:1px dashed var(--sand)}
+  .chip.ok{color:#5f6b5d;background:rgba(141,147,134,.16)}
+  .chip.near{color:#7d6346;background:rgba(208,199,180,.4)}
+  .chip.over{color:#fff;background:var(--clay)}
+  .cat-note-row{margin-top:12px}
+  .cat-note{
+    width:100%;
+    font-family:var(--ui);
+    font-size:13px;
+    color:var(--ink);
+    background:transparent;
+    border:none;
+    border-bottom:1px dashed var(--line);
+    outline:none;
+    padding:4px 0 6px;
+  }
+  .cat-note::placeholder{color:var(--ink-faint)}
+  .cat-note:focus{border-bottom-color:var(--sand)}
+  .cat-blurb{
+    margin-top:12px;
+    font-size:13px;
+    font-weight:300;
+    color:var(--ink-soft);
+    border-left:2px solid var(--sand);
+    padding-left:12px;
+  }
+  .cat-blurb a{color:var(--ink);font-weight:500;text-decoration:underline;text-decoration-color:var(--sand);text-underline-offset:3px}
+  .cat-blurb a:hover{text-decoration-color:var(--ink)}
+
+  /* ---------- footer actions ---------- */
+  .actions{
+    margin-top:34px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:var(--ui);
+    font-size:14px;
+    font-weight:500;
+    border-radius:999px;
+    padding:12px 24px;
+    cursor:pointer;
+    border:1px solid var(--ink);
+    transition:opacity .15s, background .15s;
+  }
+  .btn-primary{background:var(--ink);color:var(--cream)}
+  .btn-primary:hover{opacity:.88}
+  .btn-ghost{background:transparent;color:var(--ink)}
+  .btn-ghost:hover{background:var(--shell)}
+  .actions-hint{
+    flex-basis:100%;
+    font-size:12px;
+    color:var(--ink-faint);
+  }
+
+  .fineprint{
+    margin-top:44px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    font-size:13px;
+    font-weight:300;
+    color:var(--ink-soft);
+    max-width:620px;
+  }
+  .credit{
+    margin-top:18px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .credit a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--sand)}
+  .credit a:hover{color:var(--ink)}
+
+  /* toast */
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:28px;
+    transform:translate(-50%,16px);
+    background:var(--ink);
+    color:var(--cream);
+    font-family:var(--ui);
+    font-size:13px;
+    padding:11px 20px;
+    border-radius:999px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:50;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+
+  :focus-visible{outline:2px solid var(--sage);outline-offset:3px;border-radius:4px}
+
+  @media(max-width:560px){
+    .wrap{padding:36px 16px 56px}
+    .setter{padding:22px 18px}
+    .setter-stats{grid-template-columns:repeat(3,1fr);gap:10px}
+    .stat .stat-num{font-size:16px}
+    .cat{padding:16px 16px 14px}
+    .cat-input{width:140px}
+  }
+  @media print{
+    .btn,.btn-guide,.toast,.actions-hint{display:none}
+    body{background:#fff}
+    .cat{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Mike Atchison Photography &middot; Geelong, Victoria</p>
+    <h1>The wedding<br>budget <em>planner</em></h1>
+    <p class="lede">Planning a wedding budget is mostly just deciding what matters to the two of you. Pop in your total below, and this will show you how it is tracking against what Australian couples typically spend. <strong>It saves as you go</strong>, so come back any time.</p>
+  </header>
+
+  <section class="setter" aria-label="Your total budget">
+    <div class="setter-field">
+      <label class="field-label" for="totalBudget">Your total budget</label>
+      <div class="money-input">
+        <span class="dollar" aria-hidden="true">$</span>
+        <input id="totalBudget" inputmode="numeric" autocomplete="off" placeholder="35,000">
+      </div>
+    </div>
+    <div class="setter-stats" role="status" aria-live="polite">
+      <div class="stat"><span class="stat-num" id="statAllocated">$0</span><span class="stat-lab">allocated</span></div>
+      <div class="stat"><span class="stat-num good" id="statRemaining">$0</span><span class="stat-lab">left to allocate</span></div>
+      <div class="stat"><span class="stat-num" id="statOver">0</span><span class="stat-lab">over the guide</span></div>
+    </div>
+  </section>
+
+  <section class="band-wrap" aria-label="Where your budget is going">
+    <div class="band-title">
+      <span class="field-label">Where it is going</span>
+      <span class="band-note" id="bandNote">Add amounts below and this fills in</span>
+    </div>
+    <div class="band" id="band" role="img" aria-label="Visual breakdown of your budget by category"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="ledger">
+    <div class="ledger-head">
+      <h2>The line items</h2>
+    </div>
+    <p class="ledger-sub">The guide figures are based on typical Australian spend. They are a starting point, not a rule. Every wedding weights things differently, and that is exactly how it should be.</p>
+    <div id="cats"></div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="btnCopy">Copy summary for your partner</button>
+      <button class="btn btn-ghost" id="btnPrint">Print it</button>
+      <button class="btn btn-ghost" id="btnReset">Start fresh</button>
+      <span class="actions-hint">Copy summary puts a tidy text breakdown on your clipboard, ready to paste into a message.</span>
+    </div>
+
+    <div class="fineprint">
+      <p>Guide percentages are drawn from published Australian wedding spend averages and rounded for sanity. Real quotes in your region will vary, so treat the guide as a compass rather than a map. Some couples fund the honeymoon or rings separately. If that is you, just set those lines to zero.</p>
+      <p class="credit">Built for couples by <a href="https://www.mikeatchison.com.au" target="_blank" rel="noopener">Mike Atchison Photography</a></p>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" role="status">Copied</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* Guide percentages total 100. Based on typical Australian wedding spend. */
+  var CATEGORIES = [
+    {id:"venue",       name:"Venue hire",              pct:18, blurb:""},
+    {id:"catering",    name:"Catering & drinks",       pct:24, blurb:""},
+    {id:"photography", name:"Photography",             pct:9,  blurb:"Worth knowing: photography is the one thing from the day you keep forever. Around 9% is typical in Australia. For context, my collections run from $2,500 to $4,997. <a href=\"https://www.mikeatchison.com.au\" target=\"_blank\" rel=\"noopener\">Have a look at what is included</a>."},
+    {id:"videography", name:"Videography",             pct:4,  blurb:""},
+    {id:"flowers",     name:"Flowers & styling",       pct:7,  blurb:""},
+    {id:"attire",      name:"Attire & accessories",    pct:8,  blurb:""},
+    {id:"hairmakeup",  name:"Hair & makeup",           pct:2,  blurb:""},
+    {id:"celebrant",   name:"Celebrant",               pct:2,  blurb:""},
+    {id:"music",       name:"Music & entertainment",   pct:5,  blurb:""},
+    {id:"cake",        name:"Cake & desserts",         pct:2,  blurb:""},
+    {id:"stationery",  name:"Stationery & signage",    pct:2,  blurb:""},
+    {id:"transport",   name:"Transport",               pct:2,  blurb:""},
+    {id:"rings",       name:"Wedding rings",           pct:4,  blurb:""},
+    {id:"gifts",       name:"Gifts & favours",         pct:2,  blurb:""},
+    {id:"honeymoon",   name:"Honeymoon",               pct:4,  blurb:""},
+    {id:"contingency", name:"Contingency",             pct:5,  blurb:"The quiet hero of every budget. Around 5% set aside means the surprise costs (and there are always one or two) never become dramas."}
+  ];
+
+  var SEG_COLOURS = ["#8d9386","#d0c7b4","#a96f4f","#423c33","#b3a98f","#778071","#c2a98e","#5e574b","#9aa193","#dcd3bd","#8b6a52","#6f6a5e","#a6ad9f","#c8b9a0","#7a5a44","#bdb6a4"];
+
+  var STORE_KEY = "map_wedding_budget_v2";
+
+  var state = { total: 0, cats: {} };
+  CATEGORIES.forEach(function(c){ state.cats[c.id] = {amount:0, note:""}; });
+
+  /* ---------- persistence (fails silently if storage unavailable) ---------- */
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return;
+      var data = JSON.parse(raw);
+      if(data && typeof data.total === "number") state.total = data.total;
+      if(data && data.cats){
+        CATEGORIES.forEach(function(c){
+          if(data.cats[c.id]){
+            state.cats[c.id].amount = Number(data.cats[c.id].amount) || 0;
+            state.cats[c.id].note = String(data.cats[c.id].note || "");
+          }
+        });
+      }
+    }catch(e){}
+  }
+
+  /* ---------- formatting ---------- */
+  var fmt = new Intl.NumberFormat("en-AU",{style:"currency",currency:"AUD",maximumFractionDigits:0});
+  function money(n){ return fmt.format(Math.round(n)); }
+  function parseMoney(str){
+    var n = parseInt(String(str).replace(/[^0-9]/g,""),10);
+    return isNaN(n) ? 0 : n;
+  }
+  function withCommas(n){ return n ? n.toLocaleString("en-AU") : ""; }
+
+  /* ---------- build DOM ---------- */
+  var catsEl = document.getElementById("cats");
+  CATEGORIES.forEach(function(c){
+    var el = document.createElement("article");
+    el.className = "cat";
+    el.innerHTML =
+      '<div class="cat-top">' +
+        '<h3 class="cat-name">' + c.name + '</h3>' +
+        '<span class="cat-guide" id="guide-' + c.id + '">guide ' + c.pct + '%</span>' +
+      '</div>' +
+      '<div class="cat-mid">' +
+        '<div class="cat-input">' +
+          '<span class="dollar" aria-hidden="true">$</span>' +
+          '<input id="amt-' + c.id + '" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Amount for ' + c.name + '">' +
+        '</div>' +
+        '<button class="btn-guide" type="button" id="use-' + c.id + '">Use the guide figure</button>' +
+        '<span class="chip idle" id="chip-' + c.id + '">not set yet</span>' +
+      '</div>' +
+      '<div class="cat-note-row">' +
+        '<input class="cat-note" id="note-' + c.id + '" autocomplete="off" maxlength="120" placeholder="A note to yourselves (quotes, names, links, anything)" aria-label="Note for ' + c.name + '">' +
+      '</div>' +
+      (c.blurb ? '<p class="cat-blurb">' + c.blurb + '</p>' : '');
+    catsEl.appendChild(el);
+  });
+
+  var totalInput = document.getElementById("totalBudget");
+  var statAllocated = document.getElementById("statAllocated");
+  var statRemaining = document.getElementById("statRemaining");
+  var statOver = document.getElementById("statOver");
+  var band = document.getElementById("band");
+  var legend = document.getElementById("legend");
+  var bandNote = document.getElementById("bandNote");
+  var toast = document.getElementById("toast");
+  var toastTimer = null;
+
+  /* ---------- render ---------- */
+  function render(){
+    var total = state.total;
+    var allocated = 0, overCount = 0;
+
+    CATEGORIES.forEach(function(c){
+      var amt = state.cats[c.id].amount;
+      allocated += amt;
+      var guideDollars = total > 0 ? total * c.pct / 100 : 0;
+
+      var guideEl = document.getElementById("guide-" + c.id);
+      guideEl.innerHTML = total > 0
+        ? 'guide ' + c.pct + '% &middot; <b>' + money(guideDollars) + '</b>'
+        : 'guide ' + c.pct + '%';
+
+      var chip = document.getElementById("chip-" + c.id);
+      if(amt === 0){
+        chip.className = "chip idle"; chip.textContent = "not set yet";
+      } else if(total === 0){
+        chip.className = "chip ok"; chip.textContent = "noted";
+      } else if(amt <= guideDollars * 1.05){
+        chip.className = "chip ok"; chip.textContent = "tracking nicely";
+      } else if(amt <= guideDollars * 1.2){
+        chip.className = "chip near"; chip.textContent = "a touch over the guide";
+      } else {
+        chip.className = "chip over"; chip.textContent = "over the typical spend"; overCount++;
+      }
+    });
+
+    statAllocated.textContent = money(allocated);
+    var remaining = total - allocated;
+    statRemaining.textContent = money(remaining);
+    statRemaining.className = "stat-num " + (remaining < 0 ? "warn" : "good");
+    document.querySelector("#statRemaining + .stat-lab").textContent =
+      remaining < 0 ? "over your budget" : "left to allocate";
+    statOver.textContent = overCount;
+    statOver.className = "stat-num" + (overCount > 0 ? " warn" : "");
+
+    /* allocation band */
+    band.innerHTML = "";
+    legend.innerHTML = "";
+    var denom = Math.max(total, allocated);
+    var anySet = false;
+    if(denom > 0){
+      CATEGORIES.forEach(function(c, i){
+        var amt = state.cats[c.id].amount;
+        if(amt <= 0) return;
+        anySet = true;
+        var seg = document.createElement("div");
+        seg.className = "seg";
+        seg.style.width = (amt / denom * 100) + "%";
+        seg.style.background = SEG_COLOURS[i % SEG_COLOURS.length];
+        seg.title = c.name + ": " + money(amt);
+        band.appendChild(seg);
+
+        var key = document.createElement("span");
+        key.className = "key";
+        key.innerHTML = '<span class="swatch" style="background:' + SEG_COLOURS[i % SEG_COLOURS.length] + '"></span>' + c.name;
+        legend.appendChild(key);
+      });
+    }
+    if(!anySet){
+      var rest = document.createElement("div");
+      rest.className = "seg seg-rest";
+      band.appendChild(rest);
+      bandNote.textContent = "Add amounts below and this fills in";
+    } else if(remaining > 0){
+      var rest2 = document.createElement("div");
+      rest2.className = "seg seg-rest";
+      rest2.title = "Unallocated: " + money(remaining);
+      band.appendChild(rest2);
+      bandNote.textContent = money(remaining) + " still up for grabs";
+    } else if(remaining < 0){
+      bandNote.textContent = money(Math.abs(remaining)) + " over, time for a cuppa and a chat";
+    } else {
+      bandNote.textContent = "Every dollar has a job. Nicely done.";
+    }
+  }
+
+  /* ---------- events ---------- */
+  totalInput.addEventListener("input", function(){
+    state.total = parseMoney(totalInput.value);
+    var caretFix = withCommas(state.total);
+    if(totalInput.value !== caretFix) totalInput.value = caretFix;
+    render(); save();
+  });
+
+  CATEGORIES.forEach(function(c){
+    var amtInput = document.getElementById("amt-" + c.id);
+    var noteInput = document.getElementById("note-" + c.id);
+    var useBtn = document.getElementById("use-" + c.id);
+
+    amtInput.addEventListener("input", function(){
+      state.cats[c.id].amount = parseMoney(amtInput.value);
+      var v = withCommas(state.cats[c.id].amount);
+      if(amtInput.value !== v) amtInput.value = v;
+      render(); save();
+    });
+    noteInput.addEventListener("input", function(){
+      state.cats[c.id].note = noteInput.value;
+      save();
+    });
+    useBtn.addEventListener("click", function(){
+      if(state.total <= 0){
+        showToast("Set your total budget first, up the top");
+        totalInput.focus();
+        return;
+      }
+      var suggested = Math.round(state.total * c.pct / 100 / 50) * 50;
+      state.cats[c.id].amount = suggested;
+      amtInput.value = withCommas(suggested);
+      render(); save();
+    });
+  });
+
+  document.getElementById("btnReset").addEventListener("click", function(){
+    if(!confirm("Clear the lot and start fresh?")) return;
+    state.total = 0;
+    totalInput.value = "";
+    CATEGORIES.forEach(function(c){
+      state.cats[c.id] = {amount:0, note:""};
+      document.getElementById("amt-" + c.id).value = "";
+      document.getElementById("note-" + c.id).value = "";
+    });
+    render(); save();
+  });
+
+  document.getElementById("btnPrint").addEventListener("click", function(){ window.print(); });
+
+  document.getElementById("btnCopy").addEventListener("click", function(){
+    var lines = [];
+    lines.push("OUR WEDDING BUDGET");
+    if(state.total > 0) lines.push("Total budget: " + money(state.total));
+    lines.push("");
+    var allocated = 0;
+    CATEGORIES.forEach(function(c){
+      var amt = state.cats[c.id].amount;
+      if(amt <= 0) return;
+      allocated += amt;
+      var line = c.name + ": " + money(amt);
+      if(state.cats[c.id].note) line += "  (" + state.cats[c.id].note + ")";
+      lines.push(line);
+    });
+    lines.push("");
+    lines.push("Allocated: " + money(allocated));
+    if(state.total > 0) lines.push("Remaining: " + money(state.total - allocated));
+    lines.push("");
+    lines.push("Planned with the free budget tool from Mike Atchison Photography");
+    var text = lines.join("\n");
+
+    function done(){ showToast("Copied. Send it to your favourite person."); }
+    function fail(){ showToast("Could not copy automatically, sorry"); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ legacyCopy(text) ? done() : fail(); });
+    } else {
+      legacyCopy(text) ? done() : fail();
+    }
+  });
+
+  function legacyCopy(text){
+    try{
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      return ok;
+    }catch(e){ return false; }
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove("show"); }, 2600);
+  }
+
+  /* ---------- init ---------- */
+  load();
+  if(state.total > 0) totalInput.value = withCommas(state.total);
+  CATEGORIES.forEach(function(c){
+    if(state.cats[c.id].amount > 0) document.getElementById("amt-" + c.id).value = withCommas(state.cats[c.id].amount);
+    if(state.cats[c.id].note) document.getElementById("note-" + c.id).value = state.cats[c.id].note;
+  });
+  render();
+})();
+</script>
+</body>
+</html>
